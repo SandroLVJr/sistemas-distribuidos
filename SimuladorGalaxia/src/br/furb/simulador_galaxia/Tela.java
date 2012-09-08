@@ -43,6 +43,29 @@ public class Tela extends GLCanvas implements GLEventListener {
 		gl.glMatrixMode(GL.GL_MODELVIEW);
 		gl.glLoadIdentity();
 	}
+	
+	private float[] convertePontos() {
+		pontos = new PontoOrtogonal[144];
+		for(int i = 0; i < 4; i++) {
+			for(int j = 0; j < 36; j++) {
+				pontos[i*36 + j] = new PontoOrtogonal(
+						(float) (Math.cos((j*10*Math.PI + posicao) / 180) * (i * 10)),
+						(float) (Math.sin((j*10*Math.PI + posicao) / 180) * (i * 10)),
+						0);
+			}
+		}
+		
+		posicao += 1.0f;
+		
+		float[] convertidos = new float[pontos.length * 3];
+		for(int i = 0; i < pontos.length; i++) {
+			convertidos[i*3] = pontos[i].x;
+			convertidos[i*3 + 1] = pontos[i].y;
+			convertidos[i*3 + 2] = pontos[i].z;
+		}
+		
+		return convertidos;
+	}
 
 	// Método chamado pelo 'animator' a cada 1/60 de segundo para desenhar na
 	// tela
@@ -55,16 +78,7 @@ public class Tela extends GLCanvas implements GLEventListener {
 		setCamera(gl);
 
 		// Este array terá de ser convertido a partir de this.pontos
-		float[] pontos = new float[432];		
-		for(int i = 0; i < 4; i++) {
-			for(int j = 0; j < 36; j++) {
-				pontos[108*i + 3*j] = (float) (Math.cos((j*10*Math.PI + posicao) / 180) * (i * 10));
-				pontos[108*i + 3*j + 1] = (float) (Math.sin((j*10*Math.PI + posicao) / 180) * (i * 10));
-				pontos[108*i + 3*j + 2] = 0;
-			}
-		}
-		
-		posicao += 1.0;
+		float[] pontos = convertePontos();
 		
 		FloatBuffer pontosBuffer = BufferUtil.newFloatBuffer(pontos.length);
 		pontosBuffer.put(pontos);
