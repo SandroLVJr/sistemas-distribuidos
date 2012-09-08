@@ -23,6 +23,8 @@ public class Tela extends GLCanvas implements GLEventListener {
 
 	private FPSAnimator animator;
 	private GLU glu;
+	
+	float posicao = 0;
 
 	public Tela(int width, int height, GLCapabilities capabilities) {
 		super(capabilities);
@@ -36,7 +38,7 @@ public class Tela extends GLCanvas implements GLEventListener {
 
 		float widthHeightRatio = (float) getWidth() / (float) getHeight();
 		glu.gluPerspective(45, widthHeightRatio, 1, 1000);
-		glu.gluLookAt(-17, 50, 70, 0, 0, 0, 0, 1, 0);
+		glu.gluLookAt(30, -50, 70, 0, 0, 0, 0, 1, 0);
 
 		gl.glMatrixMode(GL.GL_MODELVIEW);
 		gl.glLoadIdentity();
@@ -56,17 +58,19 @@ public class Tela extends GLCanvas implements GLEventListener {
 		float[] pontos = new float[432];		
 		for(int i = 0; i < 4; i++) {
 			for(int j = 0; j < 36; j++) {
-				pontos[108*i + 3*j] = (float) (Math.cos(j*10*Math.PI / 180) * (i * 10));
-				pontos[108*i + 3*j + 1] = (float) (Math.sin(j*10*Math.PI / 180) * (i * 10));
+				pontos[108*i + 3*j] = (float) (Math.cos((j*10*Math.PI + posicao) / 180) * (i * 10));
+				pontos[108*i + 3*j + 1] = (float) (Math.sin((j*10*Math.PI + posicao) / 180) * (i * 10));
 				pontos[108*i + 3*j + 2] = 0;
 			}
 		}
+		
+		posicao += 1.0;
 		
 		FloatBuffer pontosBuffer = BufferUtil.newFloatBuffer(pontos.length);
 		pontosBuffer.put(pontos);
 		pontosBuffer.rewind();
 		
-		gl.glColor3f(1f, 1f, 1f);
+		gl.glColor3f(1f, 1f, .7f);
 		gl.glVertexPointer(3, GL.GL_FLOAT, 0, pontosBuffer);
 		gl.glDrawArrays(GL.GL_POINTS, 0, pontos.length / 3);
 	}
