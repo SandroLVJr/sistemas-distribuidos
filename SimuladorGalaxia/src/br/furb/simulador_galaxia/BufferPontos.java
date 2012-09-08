@@ -15,16 +15,20 @@ public class BufferPontos {
 					r.nextFloat() * 10);
 		}
 	}
-
-	public synchronized boolean hasNext() {
-		return utilizados < pontos.length;
+	
+	public synchronized int getSize() {
+		return pontos.length;
 	}
 
 	public synchronized PontoCilindrico nextPonto() {
-		PontoCilindrico ponto = pontos[utilizados];
-		utilizados++;
-
-		return ponto;
+		if(utilizados < pontos.length) {
+			PontoCilindrico ponto = pontos[utilizados];
+			utilizados++;
+	
+			return ponto;
+		} else {
+			return null;
+		}
 	}
 
 }

@@ -9,6 +9,13 @@ import javax.swing.JFrame;
 public class SimuladorGalaxia {
 
 	public static void main(String[] args) {
+		BufferPontos buffer = new BufferPontos();
+		Reposicionador[] reposicionadores = new Reposicionador[buffer.getSize() / 200];
+		for(int i = 0; i < reposicionadores.length; i++) {
+			reposicionadores[i] = new Reposicionador(buffer);
+			reposicionadores[i].start();
+		}
+		
 		Tela tela = new Tela(600, 400, getCapabilities());
 		JFrame frame = new JFrame("Simulador Galáxia");
 		frame.getContentPane().add(tela);
