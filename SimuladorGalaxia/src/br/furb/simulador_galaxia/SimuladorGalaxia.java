@@ -2,6 +2,8 @@ package br.furb.simulador_galaxia;
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.media.opengl.GLCapabilities;
 import javax.swing.JFrame;
@@ -10,13 +12,25 @@ public class SimuladorGalaxia {
 
 	public static void main(String[] args) {
 		BufferPontos buffer = new BufferPontos();
-		Reposicionador[] reposicionadores = new Reposicionador[buffer.getSize() / 200];
+		
+		FilaPontos fila = new FilaPontos();
+
+		Reposicionador[] reposicionadores = new Reposicionador[buffer.getSize() / 500];
 		for(int i = 0; i < reposicionadores.length; i++) {
-			reposicionadores[i] = new Reposicionador(buffer);
+			reposicionadores[i] = new Reposicionador(buffer, fila);
 			reposicionadores[i].start();
 		}
 		
-		Tela tela = new Tela(600, 400, getCapabilities());
+		PontoOrtogonal[] pontos = new PontoOrtogonal[buffer.getSize()];
+		for(int i = 0; i < pontos.length; i++)
+			pontos[i] = new PontoOrtogonal(0, 0, 0);
+		
+		Lock lock = new ReentrantLock();
+		
+		Conversor conversor = new Conversor(fila, pontos, lock);
+		conversor.start();
+		
+		Tela tela = new Tela(600, 400, getCapabilities(), pontos, lock);
 		JFrame frame = new JFrame("Simulador Galáxia");
 		frame.getContentPane().add(tela);
 		frame.addWindowListener(new WindowAdapter() {
@@ -27,6 +41,16 @@ public class SimuladorGalaxia {
 
 		frame.setSize(frame.getContentPane().getPreferredSize());
 		frame.setVisible(true);
+		
+		for(Reposicionador r : reposicionadores) {
+			try {
+				r.join();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
 	}
 	
 	public static GLCapabilities getCapabilities() {

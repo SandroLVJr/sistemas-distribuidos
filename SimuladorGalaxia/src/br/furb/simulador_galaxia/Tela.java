@@ -24,12 +24,13 @@ public class Tela extends GLCanvas implements GLEventListener {
 	private FPSAnimator animator;
 	private GLU glu;
 	
-	float posicao = 0;
-
-	public Tela(int width, int height, GLCapabilities capabilities) {
+	public Tela(int width, int height, GLCapabilities capabilities, PontoOrtogonal[] pontos, Lock lock) {
 		super(capabilities);
 		setSize(width, height);
 		addGLEventListener(this);
+		
+		this.pontos = pontos;
+		this.lock = lock;
 	}
 
 	private void setCamera(GL gl) {
@@ -45,18 +46,6 @@ public class Tela extends GLCanvas implements GLEventListener {
 	}
 	
 	private float[] convertePontos() {
-		pontos = new PontoOrtogonal[144];
-		for(int i = 0; i < 4; i++) {
-			for(int j = 0; j < 36; j++) {
-				pontos[i*36 + j] = new PontoOrtogonal(
-						(float) (Math.cos((j*10*Math.PI + posicao) / 180) * (i * 10)),
-						(float) (Math.sin((j*10*Math.PI + posicao) / 180) * (i * 10)),
-						0);
-			}
-		}
-		
-		posicao += 1.0f;
-		
 		float[] convertidos = new float[pontos.length * 3];
 		for(int i = 0; i < pontos.length; i++) {
 			convertidos[i*3] = pontos[i].x;
@@ -71,7 +60,9 @@ public class Tela extends GLCanvas implements GLEventListener {
 	// tela
 	@Override
 	public void display(GLAutoDrawable drawable) {
-
+		while(!lock.tryLock());
+		
+		
 		GL gl = drawable.getGL();
 		gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
 
@@ -87,6 +78,8 @@ public class Tela extends GLCanvas implements GLEventListener {
 		gl.glColor3f(1f, 1f, .7f);
 		gl.glVertexPointer(3, GL.GL_FLOAT, 0, pontosBuffer);
 		gl.glDrawArrays(GL.GL_POINTS, 0, pontos.length / 3);
+		
+		lock.unlock();
 	}
 
 	// Método chamado na inicialização da tela
