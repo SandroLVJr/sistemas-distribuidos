@@ -17,8 +17,6 @@ public class Conversor extends Thread {
 		this.desenhando = desenhando;
 	}
 
-
-
 	public void run() {
 		for(;;) {
 			converte();

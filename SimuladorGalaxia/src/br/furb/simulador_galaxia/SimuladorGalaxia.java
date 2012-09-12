@@ -2,6 +2,7 @@ package br.furb.simulador_galaxia;
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -15,10 +16,11 @@ public class SimuladorGalaxia {
 		BufferPontos buffer = new BufferPontos();
 		
 		FilaPontos fila = new FilaPontos();
+		CyclicBarrier barreira = new CyclicBarrier(buffer.getSize() / 500);
 
-		Reposicionador[] reposicionadores = new Reposicionador[1];
+		Reposicionador[] reposicionadores = new Reposicionador[buffer.getSize() / 500];
 		for(int i = 0; i < reposicionadores.length; i++) {
-			reposicionadores[i] = new Reposicionador(buffer, fila);
+			reposicionadores[i] = new Reposicionador(buffer, fila, barreira);
 			reposicionadores[i].start();
 		}
 		
