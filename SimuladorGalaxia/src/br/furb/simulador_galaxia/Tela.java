@@ -1,6 +1,7 @@
 package br.furb.simulador_galaxia;
 
 import java.nio.FloatBuffer;
+import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 
 import javax.media.opengl.DebugGL;
@@ -20,17 +21,19 @@ public class Tela extends GLCanvas implements GLEventListener {
 
 	private PontoOrtogonal[] pontos;
 	private Lock lock;
+	private Condition desenhando;
 
 	private FPSAnimator animator;
 	private GLU glu;
 	
-	public Tela(int width, int height, GLCapabilities capabilities, PontoOrtogonal[] pontos, Lock lock) {
+	public Tela(int width, int height, GLCapabilities capabilities, PontoOrtogonal[] pontos, Lock lock, Condition desenhando) {
 		super(capabilities);
 		setSize(width, height);
 		addGLEventListener(this);
 		
 		this.pontos = pontos;
 		this.lock = lock;
+		this.desenhando = desenhando;
 	}
 
 	private void setCamera(GL gl) {
@@ -62,7 +65,6 @@ public class Tela extends GLCanvas implements GLEventListener {
 	public void display(GLAutoDrawable drawable) {
 		while(!lock.tryLock());
 		
-		
 		GL gl = drawable.getGL();
 		gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
 
@@ -79,6 +81,7 @@ public class Tela extends GLCanvas implements GLEventListener {
 		gl.glVertexPointer(3, GL.GL_FLOAT, 0, pontosBuffer);
 		gl.glDrawArrays(GL.GL_POINTS, 0, pontos.length / 3);
 		
+		desenhando.signal();
 		lock.unlock();
 	}
 

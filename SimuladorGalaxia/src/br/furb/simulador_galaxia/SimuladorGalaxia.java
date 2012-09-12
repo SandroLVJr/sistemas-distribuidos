@@ -2,6 +2,7 @@ package br.furb.simulador_galaxia;
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -15,7 +16,7 @@ public class SimuladorGalaxia {
 		
 		FilaPontos fila = new FilaPontos();
 
-		Reposicionador[] reposicionadores = new Reposicionador[buffer.getSize() / 500];
+		Reposicionador[] reposicionadores = new Reposicionador[1];
 		for(int i = 0; i < reposicionadores.length; i++) {
 			reposicionadores[i] = new Reposicionador(buffer, fila);
 			reposicionadores[i].start();
@@ -26,11 +27,12 @@ public class SimuladorGalaxia {
 			pontos[i] = new PontoOrtogonal(0, 0, 0);
 		
 		Lock lock = new ReentrantLock();
+		Condition desenhando = lock.newCondition();
 		
-		Conversor conversor = new Conversor(fila, pontos, lock);
+		Conversor conversor = new Conversor(fila, pontos, lock, desenhando);
 		conversor.start();
 		
-		Tela tela = new Tela(600, 400, getCapabilities(), pontos, lock);
+		Tela tela = new Tela(600, 400, getCapabilities(), pontos, lock, desenhando);
 		JFrame frame = new JFrame("Simulador Galáxia");
 		frame.getContentPane().add(tela);
 		frame.addWindowListener(new WindowAdapter() {
